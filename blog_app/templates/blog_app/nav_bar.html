@@ -1,0 +1,48 @@
+{% load static %}
+
+<div class="nav-bar">
+  <div class="nav-container">
+    <div>
+      <a href="{% url 'blog_app:post_list' %}">
+        <img src="{% static 'img/logo.png' %}" alt="" />
+      </a>
+    </div>
+    <div class="nav-buttons">
+      <div class="nav-topics">
+        <a href="{% url 'blog_app:post_list_by_topic' topic='일상' %}"
+          ><button>일상</button></a
+        >
+        <a href="{% url 'blog_app:post_list_by_topic' topic='요리' %}"
+          ><button>요리</button></a
+        >
+        <a href="{% url 'blog_app:post_list_by_topic' topic='여행' %}"
+          ><button>여행</button></a
+        >
+        <a href="{% url 'blog_app:post_list_by_topic' topic='영화' %}"
+          ><button>영화</button></a
+        >
+        <a href="{% url 'blog_app:post_list_by_topic' topic='IT' %}"
+          ><button>IT</button></a
+        >
+      </div>
+      <div class="row-box">
+        {% if user.is_authenticated %}
+        <a href="{% url 'blog_app:logout' %}" class="logout-button">Logout</a>
+        <a
+          href="{% url 'blog_app:create_or_update_post' %}"
+          class="primary-button"
+          style="color: #1e1e1e"
+          >Just Write!</a
+        >
+        {% else %}
+        <a
+          href="{% url 'blog_app:login' %}"
+          class="primary-button"
+          style="color: #1e1e1e"
+          >Login</a
+        >
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

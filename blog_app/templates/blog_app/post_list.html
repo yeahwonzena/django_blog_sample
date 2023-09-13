@@ -1,0 +1,81 @@
+{% load custom_filter%} {% load static%}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>블로그홈</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/reset.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/post_list.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/nav_bar.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/footer.css' %}"
+    />
+  </head>
+  <body>
+    {% include 'blog_app/nav_bar.html' %}
+    <div id="post-list" class="post-list">
+      {% for post in posts %} {% if forloop.first %}
+      <div class="first-post-box">
+        <div class="container">
+          <a
+            href="{% url 'blog_app:post_detail' post.id %}"
+            class="post-info-box-link"
+          >
+            <div class="post-info-box">
+              <h3>{{ post.title }}</h3>
+              <p>{{ post.content|text_only }}</p>
+              <button>READ MORE</button>
+            </div>
+          </a>
+          <div class="thumbnail-img">
+            <img src="{{ post.content|get_img_src }}" alt="" />
+          </div>
+        </div>
+      </div>
+      {% endif %} {% endfor %}
+
+      <div class="post-box">
+        <div class="container">
+          {% for post in posts %} {% if not forloop.first %}
+          <div class="card">
+            <div class="card-thumbnail-img">
+              {% if post.content|get_img_src %}
+              <img src="{{ post.content|get_img_src }}" alt="Thumbnail image" />
+              {% else %}
+              <div
+                style="width: 100%; height: 100%; background-color: transparent"
+              ></div>
+              {% endif %}
+            </div>
+            <a
+              href="{% url 'blog_app:post_detail' post.id %}"
+              class="post-info-box-link"
+            >
+              <div class="card-info-box">
+                <p>{{ post.created_at }}</p>
+
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.content|text_only }}</p>
+              </div>
+            </a>
+          </div>
+          {% endif %} {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% include 'blog_app/footer.html' %}
+  </body>
+</html>

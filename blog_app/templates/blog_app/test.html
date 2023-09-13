@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/board_navi.css' %}"
+    />
+    <title>board client</title>
+  </head>
+  <body style="margin: 0">
+    <nav class="nav-bar">
+      <div class="nav-container">
+        <div class="nav_logo">
+          <span>myLOG</span>
+          <img src="{% static "img/board/Logo_Illy.svg" %}">
+        </div>
+        <div style="display: flex; align-items: center; gap: 40px">
+          <span class="nav-topics">
+            <a href="">일상</a>
+            <a href="">요리</a>
+            <a href="">여행</a>
+            <a href="">영화</a>
+          </span>
+          <button class="primary-button">Login</button>
+        </div>
+      </div>
+    </nav>
+    <!-- 가장 조회수 높은 컨텐츠 or 최신  -->
+    <div class="top">
+      <div class="main_title">Main Title</div>
+      <div class="main_content">Main Content</div>
+      <button>Read More</button>
+    </div>
+
+    <!-- 컨텐츠 -->
+    <main>
+      <!-- 피드 리스트 -->
+      <div class="feed_container">
+        <div class="feed">feed</div>
+      </div>
+
+      <!-- 푸터 -->
+      <div class="footer">Made with Django</div>
+    </main>
+  </body>
+</html>

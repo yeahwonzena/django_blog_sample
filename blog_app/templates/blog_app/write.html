@@ -1,0 +1,197 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% if edit_mode %}포스트 수정{% else %}포스트 작성{% endif %}</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400&display=swap">
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/reset.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/write.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/nav_bar_light.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/footer.css' %}"
+    />
+    <script src="https://cdn.tiny.cloud/1/cig4n9ujjp5wqsgk6jqk8pcfi03mazpxf0hb3h3tz9129744/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <script>
+      tinymce.init({
+        selector: '#content',
+        images_upload_url: '{% url "blog_app:image_upload" %}',
+      });
+    
+      document.addEventListener('DOMContentLoaded', (event) => {
+
+        // 이미지 업로드 후 에디터 내에 이미지 삽입
+        document.getElementById('imageUpload').addEventListener('change', function() {
+          let formData = new FormData();
+          formData.append('file', this.files[0]);
+    
+          fetch('{% url "blog_app:image_upload" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            tinyMCE.activeEditor.insertContent(`<img src="${data.location}"/>`);
+          })
+          .catch(error => console.error('Error:', error));
+        });
+    
+        // AI 글 자동완성
+        document.getElementById('aiAutocompleteButton').addEventListener('click', function() {
+          // 로딩 애니메이션 
+          document.getElementById('loading-animation').style.display = 'block';
+          document.getElementById('ai-img').style.display = 'none';
+
+          let title = document.getElementById('title').value;
+          fetch('/autocomplete/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: new URLSearchParams({
+              'title': title
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('loading-animation').style.display = 'none';
+            document.getElementById('ai-img').style.display = 'block';
+        
+            //기존 내용에 자동완성 된 내용 더함
+            let currentContent = tinyMCE.activeEditor.getContent();
+          data.message = data.message.replace(/\n/g, '<br>');
+          tinyMCE.activeEditor.setContent(currentContent + data.message);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('loading-animation').style.display = 'none';
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    {% if temp_load %}
+    <script>
+      alert('임시저장된 글을 불러옵니다');
+    </script>
+  {% endif %}
+    {% include 'blog_app/nav_bar_light.html' %}
+
+    <div class="container">
+      <div class="big-box">
+        <form method="POST" action="{% if edit_mode %}{% url 'blog_app:create_or_update_post' post.id %}{% else %}{% url 'blog_app:create_or_update_post' %}{% endif %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="write-box">
+            <input
+              type="text"
+              id="title"
+              name="title"
+              class="title"
+              placeholder="제목"
+              value="{{ post.title }}"
+            />
+            
+
+            <textarea
+              id="content"
+              name="content"
+            >{{ post.content}}</textarea>
+
+          </div>
+          <div class="post-info-box">
+            <button type="button" id="aiAutocompleteButton" class="ai-button">
+              <img id="ai-img" src="{% static 'img/ai.svg' %}" alt="AI 아이콘" />
+              <div id="loading-animation" style="display: none;">
+                <img src="{% static 'img/loading.gif' %}" alt="로딩 중" />
+              </div> 
+              AI 글 자동완성
+            </button>
+                       
+            <div class="box">
+              <h2>TOPIC</h2>
+              <div>
+                <input type="radio" id="all" name="topic" value="전체" {% if topic == '전체' %}checked{% endif %} />
+                <label for="all">전체</label>
+              </div>
+              <div>
+                  <input type="radio" id="daily" name="topic" value="일상" {% if topic == '일상' %}checked{% endif %}/>
+                  <label for="daily">일상</label>
+              </div>
+              <div>
+                <input type="radio" id="cooking" name="topic" value="요리" {% if topic == '요리' %}checked{% endif %}//>
+                <label for="cooking">요리</label>
+              </div>
+              <div>
+                <input type="radio" id="travel" name="topic" value="여행" {% if topic == '여행' %}checked{% endif %}//>
+                <label for="travel">여행</label>
+              </div>
+              <div>
+                <input type="radio" id="movie" name="topic" value="영화" {% if topic == '영화' %}checked{% endif %}//>
+                <label for="movie">영화</label>
+              </div>
+              <div>
+                <input type="radio" id="it" name="topic" value="IT" {% if topic == 'IT' %}checked{% endif %}//>
+                <label for="it">IT / 전자기기</label>
+              </div>
+            </div>
+            <div class="box">
+              <div class="info">
+                <h2>UPLOAD INFO</h2>
+                <p>공개여부: {% if edit_mode %}전체공개{% else %}미공개{% endif %}</p>
+                <input type="file" name="file" id="imageUpload" style="display:none;">
+                <button type="button" class="button-line" onclick="document.getElementById('imageUpload').click();">이미지 업로드</button>
+              </div>
+              <div class="save-box">
+                {% if edit_mode %}
+                  <input
+                    type="submit"
+                    name="delete-button" 
+                    class="delete-button"
+                    value="삭제"
+                  />
+                  <input
+                    type="submit"
+                    class="save-button"
+                    value="수정"
+                  />
+                  
+                {% else %}
+                <input type="submit" name="temp-save-button" class="temp-save-button" value="임시저장" />
+                <input type="submit" name="save-button" class="save-button" value="글 작성" />
+                {% endif %}
+              </div>
+            </div>
+            
+          </div>
+        </form>
+        
+        <a href="{% url 'blog_app:post_list' %}">
+          {% comment %} <div class="blue-box"><p>Made with <span>Django<span></p></div> {% endcomment %}
+        </a>
+      </div>
+    </div>
+    {% include 'blog_app/footer.html' %}
+
+  </body>
+</html>
