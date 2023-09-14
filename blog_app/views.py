@@ -4,6 +4,8 @@ from django.views import View
 from django.http import JsonResponse
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.contrib.auth.decorators import login_required
+
 
 from rest_framework import generics
 from bs4 import BeautifulSoup
@@ -62,6 +64,7 @@ class BlogPostList(generics.ListCreateAPIView):
 
 
 # 포스트 업로드, 업데이트, 삭제
+@login_required
 def create_or_update_post(request, post_id=None):
     # 글수정 페이지의 경우
     if post_id:
@@ -197,6 +200,6 @@ def autocomplete(request):
     return render(request, 'autocomplete.html')
 
 
-# 테스트용
+# 테스트용 페이지
 def test_view(request):
     return render(request, 'blog_app/test.html')

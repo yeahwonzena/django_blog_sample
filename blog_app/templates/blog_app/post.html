@@ -51,8 +51,8 @@
         </div>
       </div>
       <div class="button-box">
-        {% if user.is_authenticated %}
-        <div class="box-divider" style="gap:10px">
+          {% if user.is_authenticated %}
+          <div class="box-divider" style="gap:10px">
             {% comment %} 수정버튼 {% endcomment %}
             <a href="{% url 'blog_app:create_or_update_post' post.id %}">
               <button class="edit-button">수정하기</button>
